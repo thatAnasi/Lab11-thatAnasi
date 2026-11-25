@@ -16,7 +16,11 @@ async def gather_doubled(numbers):
     # TODO (Part 1, async): run one async task per number that returns n * 2, all
     #   CONCURRENTLY with asyncio.gather, and return the results as a list in the same
     #   order as `numbers`.
-    pass
+    async def double(n):
+        return n * 2
+
+    coros = [double(n) for n in numbers]
+    return await asyncio.gather(*coros)
 
 
 async def fastest(jobs):
@@ -25,7 +29,14 @@ async def fastest(jobs):
     # TODO (Part 2, async): `jobs` is a list of (label, delay) pairs. Start them all
     #   concurrently - each one just does `await asyncio.sleep(delay)` - and return the
     #   label of the FIRST job to finish. (Hint: asyncio.as_completed.)
-    pass
+    async def run_job(label, delay):
+        await asyncio.sleep(delay)
+        return label
+
+    coros = [run_job(label, delay) for label, delay in jobs]
+
+    for coro in asyncio.as_completed(coros):
+        return await coro
 
 
 def echo_once(host, port, message):
@@ -34,7 +45,11 @@ def echo_once(host, port, message):
     # TODO (Part 3, sockets): open a TCP socket and connect to (host, port). Send
     #   `message` (encode it to bytes first), receive the server's reply, and return it
     #   as a string. (Hint: socket.socket, .connect, .sendall, .recv, .decode.)
-    pass
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client:
+        client.connect((host, port))
+        client.sendall((message.encode()))
+        data = client.recv(1024)
+        return data.decode()
 
 
 def main():
